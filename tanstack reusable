@@ -1,0 +1,65 @@
+Чтобы реализовать горизонтальный скролл для таблицы с использованием TanStack Table (ранее React Table) в React, вам нужно убедиться, что таблица позволяет прокручиваться, когда ширина экрана меньше определённой ширины. Вот пошаговая инструкция:
+
+1. **Установите нужные зависимости** (если они ещё не установлены):
+
+   ```bash
+   npm install @tanstack/react-table
+   ```
+
+2. **Создайте компонент таблицы**. Убедитесь, что у вас есть стиль, который позволит таблице прокручиваться. Например:
+
+   ```jsx
+   import React from 'react';
+   import { useTable } from '@tanstack/react-table';
+
+   const TableComponent = ({ columns, data }) => {
+     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
+
+     return (
+       <div style={{ overflowX: 'auto', minWidth: '600px' }}> {/* Замените 600px на нужное значение */}
+         <table {...getTableProps()} style={{ border: '1px solid black', minWidth: '100%' }}>
+           <thead>
+             {headerGroups.map(headerGroup => (
+               <tr {...headerGroup.getHeaderGroupProps()}>
+                 {headerGroup.headers.map(column => (
+                   <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                 ))}
+               </tr>
+             ))}
+           </thead>
+           <tbody {...getTableBodyProps()}>
+             {rows.map(row => {
+               prepareRow(row);
+               return (
+                 <tr {...row.getRowProps()}>
+                   {row.cells.map(cell => (
+                     <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                   ))}
+                 </tr>
+               );
+             })}
+           </tbody>
+         </table>
+       </div>
+     );
+   };
+
+   export default TableComponent;
+   ```
+
+3. **Используйте компонент**. Например:
+
+   ```jsx
+   const App = () => {
+     const data = React.useMemo(() => [...], []);
+     const columns = React.useMemo(() => [...], []);
+
+     return <TableComponent columns={columns} data={data} />;
+   };
+
+   export default App;
+   ```
+
+4. **Обратите внимание на CSS**: Убедитесь, что ваш CSS не ограничивает ширину таблицы. Используйте `minWidth` для контейнера, чтобы задать минимальную ширину, при которой будет активен горизонтальный скролл.
+
+Теперь, когда ширина экрана станет меньше 600px (или значения, которое вы установили), таблица будет переведена в режим горизонтальной прокрутки. Это удобно для просмотра данных, которые не умещаются на экране.
