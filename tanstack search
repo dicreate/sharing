@@ -1,0 +1,90 @@
+Да, в библиотеке TanStack Table (ранее известной как React Table) можно реализовать поиск по каждой колонке. Для этого вам нужно использовать фильтры на уровне столбцов. Вот пример, как это можно сделать:
+
+1. **Установите TanStack Table**:
+   Если вы еще не установили библиотеку, это можно сделать с помощью npm или yarn:
+   ```bash
+   npm install @tanstack/react-table
+   ```
+
+2. **Создайте таблицу и настройте фильтрацию**:
+   В вашем компоненте, где вы хотите использовать таблицу, настройте данные и колонки, а также добавьте функционал для фильтрации по каждому столбцу.
+
+Пример кода:
+
+```jsx
+import React, { useMemo, useState } from 'react';
+import {
+  useTable,
+  useGlobalFilter,
+  useFilters,
+  useSortBy,
+} from '@tanstack/react-table';
+
+const Table = ({ columns, data }) => {
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable(
+    { columns, data, defaultColumn: { Filter: DefaultColumnFilter } },
+    useFilters,
+    useGlobalFilter,
+    useSortBy
+  );
+
+  return (
+    <table {...getTableProps()}>
+      <thead>
+        {headerGroups.map(headerGroup => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map column => (
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                {column.render('Header')}
+                <div>{column.canFilter ? column.render('Filter') : null}</div>
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map(row => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => (
+                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+const DefaultColumnFilter = ({ column }) => {
+  const { filterValue, setFilter } = column;
+
+  return (
+    <input
+      value={filterValue || ''}
+      onChange={e => setFilter(e.target.value || undefined)} // Установка фильтра по введенному значению
+      placeholder={`Поиск...`}
+    />
+  );
+};
+
+// Пример использования
+const MyTableComponent = () => {
+  const data = useMemo(() => [/* Ваша информация */], []);
+  const columns = useMemo(() => [/* Ваши колонки с настроенными фильтрами */], []);
+
+  return <Table columns={columns} data={data} />;
+};
+
+export default MyTableComponent;
+```
+
+В этом примере компонент `DefaultColumnFilter` создает поле ввода для каждого столбца, позволяющее фильтровать данные по его значению. Вы можете настроить фильтры, расширяя функциональность по мере необходимости.
