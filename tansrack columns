@@ -1,0 +1,104 @@
+TanStack Table — это мощная библиотека для создания таблиц в React, которая поддерживает функционал поиска, сортировки и фильтрации. Чтобы реализовать поиск по столбцам в таблице, можно воспользоваться следующими шагами:
+
+1. **Установите TanStack Table**:
+   Если вы еще не установили библиотеку, выполните:
+   ```bash
+   npm install @tanstack/react-table
+   ```
+
+2. **Создайте вашу таблицу**:
+   Используйте `useReactTable` для создания таблицы. Для поиска необходимо добавить состояние для хранения поискового запроса и обработать его.
+
+3. **Добавьте состояние для поиска**:
+   Вы можете использовать `useState` для хранения значений поиска для каждого столбца.
+
+4. **Реализуйте обработку поиска**:
+   Реализуйте логику отфильтровки данных в зависимости от введенного значения поиска. 
+
+Пример кода:
+
+```javascript
+import React, { useState } from 'react';
+import { useReactTable } from '@tanstack/react-table';
+
+const TableComponent = ({ data }) => {
+  const [columnFilters, setColumnFilters] = useState({});
+
+  const columns = [
+    {
+      header: 'Имя',
+      accessorKey: 'name',
+    },
+    {
+      header: 'Возраст',
+      accessorKey: 'age',
+    },
+    {
+      header: 'Город',
+      accessorKey: 'city',
+    },
+  ];
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      columnFilters,
+    },
+    getCoreRowModel: getCoreRowModel(), // Подключение модели строк
+    onColumnFiltersChange: setColumnFilters,
+    enableColumnFilter: true,
+  });
+
+  return (
+    <div>
+      <div>
+        {table.getAllColumns().map((column) => (
+          <div key={column.id}>
+            <input
+              type="text"
+              placeholder={`Поиск в ${column.id}`}
+              onChange={(e) => {
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  [column.id]: e.target.value,
+                }));
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      <table>
+        <thead>
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map(column => (
+                <th key={column.id}>{column.renderHeader()}</th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map(row => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map(cell => (
+                <td key={cell.id}>{cell.renderCell()}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default TableComponent;
+```
+
+### Объяснение:
+- `columnFilters` — это объект, хранящий значения фильтров по каждому столбцу.
+- Функция `onChange` в текстовых полях обновляет фильтры в состоянии.
+- `getRowModel()` обрабатывает отображение отфильтрованных данных.
+
+Теперь у вас будет таблица с функционалом поиска по каждому столбцу!
