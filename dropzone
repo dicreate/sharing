@@ -1,0 +1,98 @@
+Чтобы создать красивый список добавленных файлов с помощью `react-dropzone` и `Chakra UI`, выполните следующие шаги:
+
+1. **Установите необходимые библиотеки**:
+   Если вы еще не установили `react-dropzone` и `@chakra-ui/react`, сделайте это с помощью npm или yarn:
+
+   ```bash
+   npm install react-dropzone @chakra-ui/react @emotion/react @emotion/styled framer-motion
+   ```
+
+2. **Создайте компонент для загрузки файлов**:
+   Вот пример кода, который демонстрирует, как использовать `react-dropzone` и отображать добавленные файлы с помощью компонентов Chakra UI.
+
+```jsx
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import {
+  Box,
+  Text,
+  VStack,
+  Image,
+  Button,
+  Flex,
+  IconButton,
+} from '@chakra-ui/react';
+import { CloseIcon } from '@chakra-ui/icons';
+
+const FileUploader = () => {
+  const [files, setFiles] = useState([]);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    const newFiles = acceptedFiles.map((file) => Object.assign(file, {
+      preview: URL.createObjectURL(file), // для превью
+    }));
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  }, []);
+
+  const removeFile = (file) => {
+    setFiles((prevFiles) => prevFiles.filter((f) => f !== file));
+    URL.revokeObjectURL(file.preview); // освобождаем память
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  return (
+    <VStack spacing={4} width="full">
+      <Box
+        {...getRootProps()}
+        border="2px dashed"
+        borderColor="gray.300"
+        padding={4}
+        width="full"
+        textAlign="center"
+      >
+        <input {...getInputProps()} />
+        <Text>Перетащите сюда файлы или кликните для выбора</Text>
+      </Box>
+      {files.length > 0 && (
+        <VStack spacing={2} width="full">
+          {files.map((file) => (
+            <Flex key={file.name} alignItems="center" justifyContent="space-between" width="full">
+              <Image src={file.preview} alt={file.name} boxSize="50px" objectFit="cover" />
+              <Text>{file.name}</Text>
+              <IconButton
+                aria-label="Удалить файл"
+                icon={<CloseIcon />}
+                onClick={() => removeFile(file)}
+              />
+            </Flex>
+          ))}
+        </VStack>
+      )}
+    </VStack>
+  );
+};
+
+export default FileUploader;
+```
+
+3. **Используйте компонент**:
+   Теперь вы можете использовать ваш компонент `FileUploader` в любом месте вашего приложения.
+
+```jsx
+import React from 'react';
+import { ChakraProvider } from '@chakra-ui/react';
+import FileUploader from './FileUploader';
+
+const App = () => {
+  return (
+    <ChakraProvider>
+      <FileUploader />
+    </ChakraProvider>
+  );
+};
+
+export default App;
+```
+
+Этот пример создает интерфейс для загрузки файлов с поддержкой предварительного просмотра изображений и возможностью удаления выбранных файлов. Вы можете настроить стили и компоненты по вашему усмотрению.
