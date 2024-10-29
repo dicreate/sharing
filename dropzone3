@@ -1,0 +1,88 @@
+Для создания компонента с использованием `react-dropzone`, `chakra-ui` и `react-hook-form`, который будет отображать список загруженных файлов, следуйте приведённому ниже коду. Этот компонент будет принимать `onDrop` как пропс:
+
+1. Установите необходимые зависимости:
+```bash
+npm install react-dropzone @chakra-ui/react @emotion/react @emotion/styled framer-motion react-hook-form
+```
+
+2. Создайте компонент `FileUploader`:
+
+```tsx
+import React from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Box, Text, VStack, Button, Stack } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+
+interface FileUploaderProps {
+    onDrop: (acceptedFiles: File[]) => void;
+}
+
+const FileUploader: React.FC<FileUploaderProps> = ({ onDrop }) => {
+    const { control, setValue } = useForm();
+    
+    const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+        onDrop: (acceptedFiles) => {
+            onDrop(acceptedFiles);
+            setValue('files', acceptedFiles); // Используйте react-hook-form для управления файлами
+        }
+    });
+
+    const filesWithPreview = acceptedFiles.map(file => (
+        <Box key={file.name} border="1px solid" borderColor="gray.200" p={2} borderRadius="md">
+            <Text fontWeight="bold">{file.name}</Text>
+            <Text fontSize="sm">{(file.size / 1024).toFixed(2)} KB</Text>
+        </Box>
+    ));
+
+    return (
+        <VStack spacing={4}>
+            <Box 
+                {...getRootProps({ className: 'dropzone' })} 
+                border="2px dashed" 
+                borderColor="gray.300" 
+                p={4} 
+                textAlign="center"
+            >
+                <input {...getInputProps()} />
+                <Text>Перетащите файлы или нажмите, чтобы выбрать файлы</Text>
+                <Button mt={2} colorScheme="teal">Выбрать файлы</Button>
+            </Box>
+            <Stack spacing={2} width="100%">
+                {filesWithPreview}
+            </Stack>
+        </VStack>
+    );
+};
+
+export default FileUploader;
+```
+
+3. Используйте компонент `FileUploader` в родительском компоненте:
+
+```tsx
+import React from 'react';
+import { Box } from '@chakra-ui/react';
+import FileUploader from './FileUploader';
+
+const App: React.FC = () => {
+    const handleDrop = (acceptedFiles: File[]) => {
+        console.log('Файлы загружены:', acceptedFiles);
+    };
+
+    return (
+        <Box p={4}>
+            <FileUploader onDrop={handleDrop} />
+        </Box>
+    );
+};
+
+export default App;
+```
+
+### Пояснения:
+
+- **onDrop**: Это функция, переданная через пропсы, которая будет вызвана при загрузке файлов пользователем.
+- **useDropzone**: Хук, который управляет зоной перетаскивания и устанавливает обработчик для событий загрузки.
+- **acceptedFiles**: Содержит список загруженных файлов, которые затем отображаются в виде списка.
+
+Таким образом, этот компонент интегрирует `react-dropzone` с `Chakra UI` и управляет файлами с помощью `react-hook-form`.
