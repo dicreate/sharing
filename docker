@@ -1,4 +1,5 @@
-Чтобы проверить работоспособность вашего Docker-образа и `docker-compose` файла локально, выполните следующие шаги:
+https://drive.google.com/file/d/1SKzJ4MJDrojOZSAHgOZqBxXYovLr-LPs/view?usp=drive_link
+https://drive.google.com/file/d/1ONFMxFZFT-JeG8I1xbjjGcbD01sDdlEE/view?usp=drive_link
 
 1. **Соберите образ** (если он еще не собран):
    Если у вас есть Dockerfile, вы можете собрать образ с помощью команды:
